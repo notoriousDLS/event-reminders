@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -111,3 +112,17 @@ dist
 
 # TernJS port file
 .tern-port
+=======
+# Environment Variables
+.env
+
+# Markdown files
+.AGENTS.md
+.CLAUDE.md
+
+# VS code
+event_reminders.code-workspace
+
+# MISC
+notes
+>>>>>>> 666cc0c (initial commit - Birthdays only, no front end but working SMS reminders)

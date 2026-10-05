@@ -82,11 +82,9 @@ async function createMessage(name) {
 
 // TEST Variables - 
 
-let current_date = 4;
-let current_month = 10;
-
-// let current_date = new Date().getDate();
-// let current_month = new Date().getMonth();
+const today = new Date();
+const current_date = today.getDate();
+const current_month = today.getMonth() + 1;
 
 async function checkAndSend() {
     try {
@@ -140,3 +138,4 @@ cron.schedule('0 8 * * *', () => {
 app.listen(port, () => {
     // console.log(`Running on http://localhost:${port}`);
 });
+

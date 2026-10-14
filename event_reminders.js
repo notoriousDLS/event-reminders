@@ -3,12 +3,12 @@
 */
 
 // Dependencies
-
 // Service key for HubSpot API access
 const token = process.env.SERVICE_KEY;
-
 // environment variables file support
 const dotenv = require('dotenv').config();
+// Cron for daily call to functions
+const cron = require('node-cron')
 
 // Headers for the fetch request to HubSpot API
 const options = {
@@ -20,18 +20,15 @@ const options = {
     }
 };
 
-
 // Database connection string for HubDB
 const db = process.env.DB_CONNECTION;
 
-// // NGROK_AUTH_TOKEN
-// const ngrok = process.env.NGROK_AUTH_TOKEN;
-
 // Express server setup
 const express = require('express');
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 8080;
-
+app.use(express.static(path.join(__dirname, 'static')));
 // NunJucks template engine config
 const nunjucks = require('nunjucks');
 nunjucks.configure('views', {
@@ -47,9 +44,6 @@ const twilio = require('twilio');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
-
-// Cron for daily call to functions
-const cron = require('node-cron')
 
 // FUNCTIONS 
 // - get the DB list of birthdays
@@ -74,20 +68,32 @@ async function createMessage(name) {
         from: process.env.FROM_TWILIO,
         to: process.env.RECD_TWILIO
     });
-
     console.log(message.body);
     return message;
 }
 
+// Timezone for the cron schedule, set today for comparison
+const TIMEZONE = 'Europe/Dublin';
+// //-->  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatToParts
+function getToday() {
 
-// TEST Variables - 
+    const date_options = {
+        timeZone: TIMEZONE, // ( String from above, Railway was only allowing UTC )
+        month: "numeric", // 
+        day: "numeric"
+    };
 
-const today = new Date();
-const current_date = today.getDate();
-const current_month = today.getMonth() + 1;
+    const intl_date_parts = new Intl.DateTimeFormat('en-GB', date_options).formatToParts(new Date());
+
+    return {
+        current_date: Number(intl_date_parts.find(p => p.type === 'day').value),
+        current_month: Number(intl_date_parts.find(p => p.type === 'month').value)
+    };
+}
 
 async function checkAndSend() {
     try {
+        const { current_date, current_month } = getToday();
         const allEvents = await getBirthdays();
 
         const todaysBirthdays = allEvents.filter(event =>
@@ -104,14 +110,12 @@ async function checkAndSend() {
             const name = event.values['name'];
             await createMessage(name);
         }
+        console.log("Cron Ran Successfully ");
     } catch (err) {
         console.error('Error:', err);
     }
 
 }
-
-checkAndSend();
-
 
 // URL Routes
 app.get('/', async (req, res, next) => {
@@ -129,13 +133,18 @@ app.use((err, req, res, next) => {
     res.status(500).send('Server error: ' + err.message);
 });
 
-// Run at 08:00 every day
-cron.schedule('0 8 * * *', () => {
-    checkAndSend()
-})
+const task = cron.schedule('30 14 * * *', checkAndSend, {
+    name: 'event_check',
+    timezone: TIMEZONE,
+    noOverlap: true
+});
+
+// logging for Railway
+task.on('execution:finished', (ctx) => {
+    console.log(`done in ${ctx.execution?.finishedAt - ctx.execution?.startedAt}ms`);
+});
 
 // Start Server
 app.listen(port, () => {
-    // console.log(`Running on http://localhost:${port}`);
+    console.log(`Running on http://localhost:${port}`);
 });
-

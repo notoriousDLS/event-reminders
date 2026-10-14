@@ -1,6 +1,66 @@
-{% extends "base.html" %} 
+{% extends "base.njk" %}
 {% block content %}
-<h1>Event reminder app </h1>
-<p>This example is better on <a href="https://github.com/notoriousDLS/event-reminders">GitHub</a>. Check the README for how it works :) <p>
+<section>
+      <div class="wrap">
+<section class="card writeup">
+  <h1>Event Reminders App</h1>
+  <p>There's nothing to click here as this is a simple Node.js automation. This app runs in the background and texts me when someone I care about has a birthday or anniversary coming up.</p>
 
+  <h2>Why I built it</h2>
+  <p>Having come off a break where I spent the last year focused on improving my health and my home I let a few things lapse. Once I was ready to get back to work, I needed a new portfolio. Rather than wire up a wordpress and a template with some stories I decided to build some applications that were genuinely useful to me rather than abstractions or conceptual projects.</p>
+  <p>When I started out with the latest version of the portfolio, I wanted 3 things.</p>
+  <ol>
+    <li>A clean modern design. Not managed with a CMS. I needed some practice and some struggle with styling.</li>
+    <li>I came up ith the idea for a digital fortune teller for a friend of mine who loves the Zodiac. I call it the Zodi-app. And it is available on this site. It's Flask App with a SQLite database</li>
+    <li>I wanted a personal project that was actually useful to me. Something small that lets people know I'm thinking of them on the days that matter like birthdays and anniversaries.</li>
+  </ol>
+  <p>I still have lifetime access to my HubSpot employee portal, so I decided to put it to good use and what followed was the event-reminders app.</p>
+
+  <h2>Gathering the data</h2>
+  <p>Go get the data I needed I went through my phone, calendar and my messaging apps and pulled every important date into one list on HubDB. One of the big advantages to this was I didn't need to write and host a new database in SQL. It was just one CSV, accessible by API.</p>
+  <p>Each entry has the date, the person I should reach out to, and a category: birthday, or various types of anniversary.</p>
+  <p>The categories are currently not in use. In a later version I will adapt the create and send function to swop out the message based on the category.</p>
+
+  <h2>Starting out</h2>
+  <p>I initially began using NGROK just to get something up and out. This allow me to use Vite and make live changes to the index.html and event-reminders.js without the need to keep refreshing and running.</p>
+
+  <h2>Getting information from HubDB</h2>
+  <p>I authenticated to HubSpot with a service key and pointed it at the HubDB API to get table row data. I used the JavaScript Fetch API and Node.js to get the rows. My first test was to print all the rows to the index.html page then move on to the next message.</p>
+
+  <h2>Sending texts with Twilio</h2>
+  <p>I decided to use Twilio, Express. I tried plain Node first and struggled, I later tried out Express was much cleaner to work with and it reduced the complexity.</p>
+  <p>I was also using NGROK at the outset to get a URL live. I ran in to an issue called connection pooling. Once I enabled it, the site was live on ngrok.</p>
+  <p>I spent a good while wrestling with promises, async and await. But my goal was to send the test message to my phone (Stored and an environment variable along with other required info). Then the phone sent the basic message associated with test accounts.</p>
+  <blockquote>
+    <p>"Reminder: Your event starts tonight at 7 PM at the scheduled venue. Show this message at the gate. Test message from Twilio."</p>
+  </blockquote>
+  <p>Once I received this message, I wanted to take break, think about what I wanted to get and also review code and commentary.</p>
+  <p>I decided at that moment, after a code review that I should swap the HubDB connection string for an environment variable so the HubDB details never end up on GitHub. HubDB requires the data to be public abd accessible to anyone with the URL. Although the data is low risk and small, i did not want to share it.</p>
+
+  <h2>Text Personalisation</h2>
+  <p>I upgraded the Twilio account and bought a sender number. I read up on SMS compliance rules like A2N and how that</p>
+  <p>Then I went to coding hell adapting the message. Async and await again. Eventually I asked AI to help with the structure, and it suggested combining the create and send steps into one. It was right.</p>
+  <p>There are about 3,200 reminders in the list, and my $20 of credit years. The account is set to add money so it is in effect, a forever app.</p>
+
+  <h2>Hosting</h2>
+  <p>This was actually one of the first things I researched and I completely changed course in the end then picked Railway. Which I absolutely adore.</p>
+  <p>Having struggled through zsh/bash hell with the service pythonanywhere, I discovered that I could wire up the remote repo for all of my apps and static assets and then deploy on commit</p>
+  <p>Railway for hobbyists is cheaper and easier. (I do not work for them or receive a gratuity or other payment, It just blew my mind that 1. I'd not heard of it before and 2. it was so easy by comparison.)</p>
+  <p>It was also easier to manage environment variables which need to manually uploaded on every deployment with Python Anywhere in their own console. Railway also runs the required cron job to check for birthdays. It was so good infact, that everything is hosted there now.</p>
+
+  <h2>Challenges with Building</h2>
+  <p>One of the most annoying issues was that I did not realise on the initial commit but there was a logical error that appeared to keep  the original date the app was run in memory. This led me to change how I assign dates. I created a function to get the months and years seperated out. Then looped and compared.</p>
+  <p>I changed VPN providers recently, the newer provider is clear more strict, I can only run apps when it is off. It does not support split tunnelling. This led me to an afternoon of hair pulling. At least now I know for the future.</p>
+  <p>After a couple of days of the first working version, I realised there was something up with the CRON. the CRON was running on railway but the express server never stopped. I moved back the cron from Railway and used Node-Cron instead. This allowed me to console.log my way through and then test without triggering Twilio. Now the application isolates the getDate function, picks the pieces it needs, assigns them today and month variables and returns  them to the program. I set the cron to run every ten seconds and it worked as expected.</p>
+  
+  <h2>Front end</h2>
+  <p>I went with Nunjucks. It's a JavaScript take on Jinja2, which Flask and HubSpot's CMS both use, so I know it inside out.</p>
+  <p>I came back a few days later to build it. And the home page became this write-up, built from my notes.</p>
+  <p>If you managed to make it this far, thank you. I sincerely appreciate it. </p>
+
+  <p><a class="btn gh" href="https://github.com/notoriousDLS/event-reminders">View on GitHub</a></p>
+</section>
+
+  </div>
+</section>
 {% endblock %}

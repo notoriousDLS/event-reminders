@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -12,6 +11,11 @@ lerna-debug.log*
 
 # package-json
 package-json.lock
+
+# pnpm 
+pnpm
+pnpm.yaml
+pnpm-lock.yaml
 
 # bun deploy file
 node_modules.bun
@@ -112,17 +116,11 @@ dist
 
 # TernJS port file
 .tern-port
-=======
-# Environment Variables
-.env
 
-# Markdown files
-.AGENTS.md
-.CLAUDE.md
-
-# VS code
-event_reminders.code-workspace
-
-# MISC
+# misc
+start.sh
 notes
->>>>>>> 666cc0c (initial commit - Birthdays only, no front end but working SMS reminders)
+
+# vs-code
+event_reminders.code-workspace
+start.sh
